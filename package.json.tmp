@@ -1,0 +1,8 @@
+# Installing testing dependencies if not present
+# The following test dependencies are needed:
+# @testing-library/react
+# @testing-library/jest-dom
+# @testing-library/user-event
+# jest
+# jest-environment-jsdom
+# @types/jest
