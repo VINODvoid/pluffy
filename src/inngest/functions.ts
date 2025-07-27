@@ -1,19 +1,23 @@
 import { inngest } from "./client";
-import { gemini, createAgent, createTool, createNetwork, Tool,  } from "@inngest/agent-kit";
+import {
+  gemini,
+  createAgent,
+  createTool,
+  createNetwork,
+  Tool,
+} from "@inngest/agent-kit";
 import { Sandbox } from "@e2b/code-interpreter";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { z } from "zod";
 import { PROMPT } from "@/prompt";
 import prisma from "@/lib/db";
 
-
 interface AgentState {
-  summary:string,
-  files:{
-   [path:string] :string
-  }
+  summary: string;
+  files: {
+    [path: string]: string;
+  };
 }
-
 
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
@@ -70,23 +74,29 @@ export const codeAgentFunction = inngest.createFunction(
               })
             ),
           }),
-          handler: async ({ files }, { network, step }:Tool.Options<AgentState>) => {
+          handler: async (
+            { files },
+            { network, step }: Tool.Options<AgentState>
+          ) => {
             if (!Array.isArray(files)) {
               return "Error: files parameter must be an array";
             }
-            const newFiles = await step?.run("createOrUpdateFiles", async () => {
-              try {
-                const updatedFiles = network.state.data.files || {};
-                const sandbox = await getSandbox(sandboxId);
-                for (const file of files) {
-                  await sandbox.files.write(file.path, file.content);
-                  updatedFiles[file.path] = file.content;
+            const newFiles = await step?.run(
+              "createOrUpdateFiles",
+              async () => {
+                try {
+                  const updatedFiles = network.state.data.files || {};
+                  const sandbox = await getSandbox(sandboxId);
+                  for (const file of files) {
+                    await sandbox.files.write(file.path, file.content);
+                    updatedFiles[file.path] = file.content;
+                  }
+                  return updatedFiles;
+                } catch (error) {
+                  return "Error: \n " + error;
                 }
-                return updatedFiles;
-              } catch (error) {
-                return "Error: \n " + error;
               }
-            });
+            );
             if (typeof newFiles === "object") {
               network.state.data.files = newFiles;
             }
@@ -118,7 +128,8 @@ export const codeAgentFunction = inngest.createFunction(
       ],
       lifecycle: {
         onResponse: async ({ result, network }) => {
-          const lastAssistantMessageText = lastAssistantTextMessageContent(result);
+          const lastAssistantMessageText =
+            lastAssistantTextMessageContent(result);
           if (lastAssistantMessageText && network) {
             if (lastAssistantMessageText.includes("<task_summary>")) {
               network.state.data.summary = lastAssistantMessageText;
@@ -141,44 +152,42 @@ export const codeAgentFunction = inngest.createFunction(
     });
 
     const result = await network.run(event.data.value);
-    const isError = !result.state.data.summary || 
-    Object.keys(result.state.data.files || {}
-    ).length === 0;
+    const isError =
+      !result.state.data.summary ||
+      Object.keys(result.state.data.files || {}).length === 0;
     const sandboxUrl = await step.run("get-sandbox-url", async () => {
       const sandbox = await getSandbox(sandboxId);
       const host = sandbox.getHost(3000);
       return `https://${host}`;
     });
 
-    await step.run("save-result",async ()=>{
-      if(isError)
-      {
+    await step.run("save-result", async () => {
+      if (isError) {
         return await prisma.message.create({
-          data:{
-            content:"Something got cooked, ",
-            role:"ASSISTANT",
-            type:"ERROR",
-          }
-        })
+          data: {
+            projectId: event.data.projectId,
+            content: "Something got cooked, ",
+            role: "ASSISTANT",
+            type: "ERROR",
+          },
+        });
       }
-      return await prisma.message.create(
-        {
-          data:{
-            content:result.state.data.summary,
-            role:"ASSISTANT",
-            type:"RESULT",
-            fragment:{
-              create:{
-                sandboxUrl:sandboxUrl,
-                title:"Fragment",
-                files:result.state.data.files,
-              }
-            }
-
-          }
-        }
-      )
-    })
+      return await prisma.message.create({
+        data: {
+          projectId: event.data.projectid,
+          content: result.state.data.summary,
+          role: "ASSISTANT",
+          type: "RESULT",
+          fragment: {
+            create: {
+              sandboxUrl: sandboxUrl,
+              title: "Fragment",
+              files: result.state.data.files,
+            },
+          },
+        },
+      });
+    });
     return {
       url: sandboxUrl,
       title: "Fragment",

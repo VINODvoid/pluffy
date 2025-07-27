@@ -1,11 +1,13 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
-import {toast}  from "sonner";
+import { toast } from "sonner";
 
 /**
  * Renders a button that triggers a background job via a TRPC mutation and displays a success notification upon completion.
@@ -13,24 +15,33 @@ import {toast}  from "sonner";
  * The button is disabled while the mutation is pending to prevent multiple invocations.
  */
 export default function Home() {
-  const [value,setValue] = useState<string>("");
+  const [value, setValue] = useState<string>("");
+  const router = useRouter();
+  const trpc = useTRPC();
 
- const trpc =useTRPC();
- const {data:messages} = useQuery(trpc.messages.getMany.queryOptions());
- const createMessage  = useMutation(trpc.messages.create.mutationOptions({
-  onSuccess:()=>{
-    toast.success("Message created")
-  }
- }))
+  const createProject = useMutation(
+    trpc.projects.create.mutationOptions({
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSuccess:(data) =>{
+        router.push(`/projects/${data.id}`)
+      }
+    })
+  );
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <Input onChange={(e)=> setValue(e.target.value)} value={value}/>
-      <Button onClick={()=> createMessage.mutate({value:value})} disabled={createMessage.isPending}>
-      Invoke Job
-      </Button>
-      {JSON.stringify(messages,null,2)}
+    <div className="h-screen w-screen flex items-center justify-center">
+      <div className="max-w-7xl mx-auto flex items-center flex-col  gap-y-4 justify-center">
+        <Input onChange={(e) => setValue(e.target.value)} value={value} className="w-full" />
+        <Button
+          variant={"outline"}
+          onClick={() => createProject.mutate({ value: value })}
+          disabled={createProject.isPending}
+        >
+          Bake It ☺
+        </Button>
+      </div>
     </div>
-
   );
-} 
+}
