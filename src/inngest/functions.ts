@@ -172,9 +172,10 @@ export const codeAgentFunction = inngest.createFunction(
           },
         });
       }
+      
       return await prisma.message.create({
         data: {
-          projectId: event.data.projectid,
+          projectId: event.data.projectId,
           content: result.state.data.summary,
           role: "ASSISTANT",
           type: "RESULT",
@@ -196,3 +197,4 @@ export const codeAgentFunction = inngest.createFunction(
     };
   }
 );
+
