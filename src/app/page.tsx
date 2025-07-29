@@ -39,7 +39,7 @@ export default function Home() {
           onClick={() => createProject.mutate({ value: value })}
           disabled={createProject.isPending}
         >
-          Bake It ☺
+          Bake It  🍞
         </Button>
       </div>
     </div>
