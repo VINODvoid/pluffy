@@ -25,6 +25,12 @@ type FileCollection = {
   [path: string]: string;
 };
 
+/**
+ * Returns the file extension of a given filename in lowercase, or "text" if no extension is found.
+ *
+ * @param filename - The name of the file to extract the extension from
+ * @returns The file extension in lowercase, or "text" if the filename has no extension
+ */
 function getLanguageFromExtension(filename: string): string {
   const extension = filename.split(".").pop()?.toLowerCase();
   return extension || "text";

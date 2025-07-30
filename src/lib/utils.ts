@@ -3,14 +3,24 @@ import { twMerge } from "tailwind-merge";
 
 import { type TreeItem } from "@/types";
 
+/**
+ * Combines multiple class name values into a single string, resolving Tailwind CSS class conflicts.
+ *
+ * Accepts conditional and dynamic class name inputs, merges them using `clsx`, and then applies `twMerge` to intelligently handle Tailwind CSS class deduplication and conflict resolution.
+ *
+ * @returns The merged class name string
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 /**
- * Convert a record of files to a tree structure.
- * @param files - Record of file paths to content
- * @returns Tree structure for TreeView component
+ * Converts a flat record of file paths to a nested tree structure for use in a TreeView component.
+ *
+ * Each file path is split into folders and file names, producing a hierarchical array where folders are represented as arrays with their name followed by their children, and files are represented as strings.
+ *
+ * @param files - An object mapping file paths to their contents
+ * @returns An array representing the nested tree structure of files and folders
  *
  * @example
  * Input: { "src/Button.tsx": "...", "README.md": "..." }
@@ -48,7 +58,15 @@ export function convertFilesToTreeItems(
     current[fileName] = null; // null indicates it's a file
   }
 
-  // Convert tree structure to TreeItem format
+  /**
+   * Recursively converts a nested tree node into the TreeItem format for use in a TreeView component.
+   *
+   * If the node is empty, returns its name or an empty string. Files are represented as strings, and folders as arrays with the folder name followed by their children.
+   *
+   * @param node - The current tree node to convert
+   * @param name - Optional name for the current node, used when returning empty nodes
+   * @returns A TreeItem representing the converted node or an array of TreeItems for its children
+   */
   function convertNode(node: TreeNode, name?: string): TreeItem[] | TreeItem {
     const entries = Object.entries(node);
 
