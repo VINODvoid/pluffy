@@ -1,3 +1,5 @@
+"use server"
+
 import {RateLimiterPrisma} from "rate-limiter-flexible";
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";

@@ -10,7 +10,6 @@ import {
   SidebarMenuSub,
   SidebarProvider,
   SidebarRail,
-  SidebarTrigger,
 } from "./ui/sidebar";
 import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react";
 import {

@@ -1,4 +1,4 @@
-import { CopyCheckIcon, CopyIcon, Divide, Flashlight } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, } from "lucide-react";
 import { useState, useMemo, useCallback, Fragment } from "react";
 import { Hint } from "@/components/hint";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb";
-import { string } from "zod";
+
 import { convertFilesToTreeItems } from "@/lib/utils";
 import { TreeView } from "./tree-view";
-import { Span } from "next/dist/trace";
 
 type FileCollection = {
   [path: string]: string;
