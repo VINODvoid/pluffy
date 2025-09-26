@@ -11,11 +11,11 @@ import { Fragment } from "@/generated/prisma";
 import ProjectHeader from "../components/project-header";
 import FragmentWeb from "../components/fragment-web";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Value } from "@radix-ui/react-select";
 import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileExplorer } from "@/components/file-explorer";
-import { UserControl } from "@/components/user-control";
 
 interface Props {
   projectId: string;
@@ -64,12 +64,11 @@ export const ProjectView = ({ projectId }: Props) => {
                 </TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-x-2">
-                <Button asChild size={"sm"} variant={"tertiary"}>
+                <Button asChild size={"sm"} variant={"default"}>
                   <Link href={"/pricing"}>
                     <CrownIcon /> Upgrade
                   </Link>
                 </Button>
-                <UserControl/>
               </div>
             </div>
             <TabsContent value="preview">

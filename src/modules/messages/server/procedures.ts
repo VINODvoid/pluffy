@@ -1,24 +1,20 @@
 import { inngest } from "@/inngest/client";
 import prisma from "@/lib/db";
-import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
-import { TRPCError } from "@trpc/server";
+import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import {z} from "zod";
 
 
 export const messageRouter = createTRPCRouter({
-    getMany:protectedProcedure
+    getMany:baseProcedure
     .input(
         z.object({
             projectId:z.string().min(1,{message:"Project ID is required"}),
         }),
     )
-    .query(async ({input,ctx})=>{
+    .query(async ({input})=>{
         const messages = await prisma.message.findMany({
             where:{
                 projectId:input.projectId,
-                project:{
-                    userId:ctx.auth.userId,
-                }
             },
             include:{
                 fragment:true,
@@ -26,33 +22,22 @@ export const messageRouter = createTRPCRouter({
             orderBy:{
                 updatedAt:"asc"
             },
+              
+              
         });
         return messages; 
     }),
-    create:protectedProcedure
+    create:baseProcedure
     .input(
         z.object({
             value:z.string().min(1,{message:"Message is required"}).max(10000,{message:"Message is too long"}),
             projectId:z.string().min(1,{message:"Project Id is required"}),
         }),
     )
-    .mutation(async ({input,ctx})=>{
-        const exisitngProject = await prisma.project.findUnique({
-            where:{
-                id:input.projectId,
-                userId:ctx.auth.userId,
-            }
-        });
-        if(!exisitngProject)
-        {
-            throw new TRPCError({
-                code:"NOT_FOUND",
-                message:"Project not found"
-            })
-        }
+    .mutation(async ({input})=>{
        const createMessage =  await prisma.message.create({
             data:{
-                projectId:exisitngProject.id,
+                projectId:input.projectId,
                 content:input.value,
                 role:"USER",
                 type:"RESULT",
