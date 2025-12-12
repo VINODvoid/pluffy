@@ -44,23 +44,20 @@ npm install
 ```
 
 ### 2) Environment variables
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` and fill in your values:
 
 ```bash
-# Database
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME?schema=public"
-
-# Clerk (replace with your values)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
-
-# Inngest (optional if you run locally without external triggers)
-INNGEST_EVENT_KEY=""
-INNGEST_SIGNING_KEY=""
-
-# App
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+cp .env.example .env
 ```
+
+Required variables:
+- `DATABASE_URL`: PostgreSQL connection string
+- `GEMINI_API_KEY`: Google Gemini API key for AI code generation
+- `E2B_API_KEY`: E2B API key for sandboxed code execution
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`: Clerk authentication keys
+- `NEXT_PUBLIC_APP_URL`: Your app URL (http://localhost:3000 for local dev)
+
+For local development, `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` can be left empty.
 
 ### 3) Database setup
 Generate Prisma client (done automatically on install) and run migrations:
@@ -114,9 +111,22 @@ public/                        # Static assets (including screenshots)
 - Inngest endpoint is under `src/app/api/inngest/route.ts`.
 
 ## Deployment
-- Works on platforms that support Next.js 15 (e.g., Vercel).
-- Ensure all required env vars are set in your host environment.
-- Run `npm run build` and `npm run start` for self-hosting.
+
+### Vercel (Recommended)
+
+See `DEPLOYMENT.md` for comprehensive deployment instructions.
+
+**Quick steps:**
+1. Deploy to Vercel
+2. **IMPORTANT**: Install the [Inngest Vercel Integration](https://vercel.com/integrations/inngest) - this is required for background jobs to work
+3. Configure all environment variables in Vercel dashboard
+4. Redeploy
+
+### Self-Hosting
+- Works on platforms that support Next.js 15
+- Ensure all required env vars are set in your host environment
+- For Inngest, manually configure `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY`
+- Run `npm run build` and `npm run start`
 
 ## License
 This project is licensed under the terms of the license in `LICENSE`.
